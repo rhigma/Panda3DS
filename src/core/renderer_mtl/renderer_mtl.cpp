@@ -859,6 +859,9 @@ void RendererMTL::beginRenderPassIfNeeded(
 		endRenderPass();
 
 		renderCommandEncoder = commandBuffer->renderCommandEncoder(renderPassDescriptor);
+		// renderCommandEncoder() follows the Objective-C naming rules, so the encoder it returns is
+		// autoreleased. Retain it here because endRenderPass() releases it.
+		renderCommandEncoder->retain();
 		renderCommandEncoder->setLabel(toNSString(nextRenderPassName));
 		commandEncoder.newRenderCommandEncoder(renderCommandEncoder);
 

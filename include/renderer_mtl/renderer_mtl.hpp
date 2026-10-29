@@ -103,6 +103,9 @@ class RendererMTL final : public Renderer {
 	void createCommandBufferIfNeeded() {
 		if (!commandBuffer) {
 			commandBuffer = commandQueue->commandBuffer();
+			// commandBuffer() returns an autoreleased object. Retain it because commitCommandBuffer()
+			// releases it; without this the autorelease pool of the calling frontend releases it again.
+			commandBuffer->retain();
 		}
 	}
 
