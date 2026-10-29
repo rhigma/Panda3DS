@@ -90,6 +90,15 @@ class Renderer {
 	// Passes an NSView's backing layer (CAMetalLayer) to the renderer
 	virtual void setMTKLayer(void* layer) { Helpers::panic("Renderer doesn't support MTK Layer"); };
 
+	// Used by frontends that own the graphics device and hand it to the core instead of letting the core create one
+	// (eg OpenEmu, which shares one MTLDevice between itself and the core). renderer-dependent: backends that cannot
+	// take an external device fall back to initGraphicsContext, which gets the device pointer as its context.
+	virtual void initGraphicsContextWithDevice(void* device) { initGraphicsContext(device); }
+
+	// Used by frontends that present into a texture of their own instead of a window's drawable (eg OpenEmu).
+	// The pointer is a backend-specific texture handle; the renderer must not take ownership of the caller's reference.
+	virtual void setPresentTexture(void* texture) { Helpers::panic("Renderer doesn't support external present targets"); }
+
 	// This function is called on every draw call before parsing vertex data.
 	// It is responsible for things like looking up which vertex/fragment shaders to use, recompiling them if they don't exist, choosing between
 	// ubershaders and shadergen, and so on.
