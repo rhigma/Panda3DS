@@ -213,4 +213,8 @@ class RendererGL final : public Renderer {
 
 	// Take a screenshot of the screen and store it in a file
 	void screenshot(const std::string& name) override;
+
+	// Copy the composed picture (both screens at the output resolution) into a top-down BGRA8 buffer.
+	// Frontends that present through a compositor of their own (eg OpenEmu) fetch frames this way.
+	void copyScreenToBGRA(void* buffer);
 };

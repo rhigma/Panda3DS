@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <bit>
+#include <cstring>
 #include <cmrc/cmrc.hpp>
 
 #include "PICA/float_types.hpp"
@@ -1161,6 +1162,26 @@ void RendererGL::screenshot(const std::string& name) {
 	}
 
 	stbi_write_png(name.c_str(), width, height, 4, flippedPixels.data(), 0);
+}
+
+void RendererGL::copyScreenToBGRA(void* buffer) {
+	constexpr u32 width = 400;
+	constexpr u32 height = 2 * 240;
+
+	// glReadPixels hands out the rows bottom-up, so read into a staging buffer and copy them flipped
+	static std::vector<u8> staging;
+	staging.resize(width * height * 4);
+
+	screenFramebuffer.bind(OpenGL::ReadFramebuffer);
+	glReadPixels(0, 0, width, height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, staging.data());
+
+	u8* destination = static_cast<u8*>(buffer);
+	for (u32 y = 0; y < height; y++) {
+		std::memcpy(destination + y * width * 4, staging.data() + (height - y - 1) * width * 4, width * 4);
+	}
+
+	// Leave the read framebuffer bound to nothing so the state manager does not inherit ours
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 }
 
 void RendererGL::deinitGraphicsContext() {
