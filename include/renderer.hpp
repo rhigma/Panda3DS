@@ -70,6 +70,11 @@ class Renderer {
 	virtual void textureCopy(u32 inputAddr, u32 outputAddr, u32 totalBytes, u32 inputSize, u32 outputSize, u32 flags) = 0;
 	virtual void drawVertices(PICA::PrimType primType, std::span<const PICA::Vertex> vertices) = 0;  // Draw the given vertices
 
+	// Tells the renderer that the guest wrote to the physical memory range [start, end), so any cached
+	// GPU-side copy of data in that range is out of date. Only relevant for renderers that cache
+	// guest memory in host objects, such as textures.
+	virtual void invalidateGuestRange(u32 start, u32 end) {}
+
 	virtual void screenshot(const std::string& name) = 0;
 	// Some frontends and platforms may require that we delete our GL or misc context and obtain a new one for things like exclusive fullscreen
 	// This function does things like write back or cache necessary state before we delete our context

@@ -185,6 +185,11 @@ class RendererGL final : public Renderer {
 
 	void accelerateVertexUpload(ShaderUnit& shaderUnit, PICA::DrawAcceleration* accel);
 	void compileDisplayShader();
+	// Copies a colour buffer's pixels from its texture back into the guest memory it occupies, so that
+	// textures sampling that memory see what the GPU rendered
+	void writeBackColourBuffer(ColourBuffer& buffer);
+	// Marks the colour buffer covering the given address as holding pixels guest memory does not have yet
+	void markColourBufferWritten(u32 addr);
 
   public:
 	RendererGL(GPU& gpu, const std::array<u32, regNum>& internalRegs, const std::array<u32, extRegNum>& externalRegs)
@@ -199,6 +204,7 @@ class RendererGL final : public Renderer {
 	void textureCopy(u32 inputAddr, u32 outputAddr, u32 totalBytes, u32 inputSize, u32 outputSize, u32 flags) override;
 	void drawVertices(PICA::PrimType primType, std::span<const PICA::Vertex> vertices) override;  // Draw the given vertices
 	void deinitGraphicsContext() override;
+	void invalidateGuestRange(u32 start, u32 end) override;
 
 	virtual bool supportsShaderReload() override { return true; }
 	virtual std::string getUbershader() override;
