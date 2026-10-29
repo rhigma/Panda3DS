@@ -148,6 +148,21 @@ void RendererGL::initGraphicsContextInternal() {
 	OpenGL::clearColor();
 	dummyFBO.free();
 
+	// A disabled texture unit samples as white on the PICA, so give the renderer a white texture to
+	// bind whenever a draw leaves a unit off but its TEV stages still read from it
+	whiteTexture.create(8, 8, GL_RGBA8);
+	whiteTexture.bind();
+	whiteTexture.setMinFilter(OpenGL::Linear);
+	whiteTexture.setMagFilter(OpenGL::Linear);
+
+	dummyFBO.createWithDrawTexture(whiteTexture);
+	dummyFBO.bind(OpenGL::DrawFramebuffer);
+
+	OpenGL::setViewport(8, 8);
+	gl.setClearColour(1.0, 1.0, 1.0, 1.0);
+	OpenGL::clearColor();
+	dummyFBO.free();
+
 	screenTexture.create(screenTextureWidth, screenTextureHeight, GL_RGBA8);
 	screenTexture.bind();
 	screenTexture.setMinFilter(OpenGL::Linear);
@@ -337,6 +352,10 @@ void RendererGL::bindTexturesToSlots() {
 
 	for (int i = 0; i < 3; i++) {
 		if ((regs[PICA::InternalRegs::TexUnitCfg] & (1 << i)) == 0) {
+			// The unit is off, which the PICA turns into white samples for any TEV stage that still
+			// reads it. Bind the white texture so a stale binding cannot leak into this draw.
+			glActiveTexture(GL_TEXTURE0 + i);
+			whiteTexture.bind();
 			continue;
 		}
 

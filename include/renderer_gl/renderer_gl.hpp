@@ -89,6 +89,8 @@ class RendererGL final : public Renderer {
 	OpenGL::Texture LUTTexture;
 	OpenGL::Framebuffer screenFramebuffer;
 	OpenGL::Texture blankTexture;
+	// Stand-in sampled by texture units that are disabled, which the PICA makes return white
+	OpenGL::Texture whiteTexture;
 	// The "default" vertex shader to use when using specialized shaders but not PICA vertex shader -> GLSL recompilation
 	// We can compile this once and then link it with all other generated fragment shaders
 	OpenGL::Shader defaultShadergenVs;
