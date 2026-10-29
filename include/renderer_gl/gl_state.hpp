@@ -26,6 +26,7 @@ struct GLStateManager {
 	bool blendEnabled;
 	bool logicOpEnabled;
 	bool depthEnabled;
+	bool cullEnabled;
 	bool scissorEnabled;
 	bool stencilEnabled;
 	u32 enabledClipPlanes;  // Bitfield of enabled clip planes
@@ -42,6 +43,7 @@ struct GLStateManager {
 	GLuint boundUBO;
 
 	GLenum depthFunc;
+	GLenum cullFaceMode;
 	GLenum logicOp;
 	GLenum blendEquationRGB, blendEquationAlpha;
 	GLenum blendFuncSourceRGB, blendFuncSourceAlpha;
@@ -52,6 +54,7 @@ struct GLStateManager {
 	void resetClearing();
 	void resetClipping();
 	void resetColourMask();
+	void resetCulling();
 	void resetDepth();
 	void resetVAO();
 	void resetBuffers();
@@ -70,6 +73,27 @@ struct GLStateManager {
 		if (depthEnabled) {
 			depthEnabled = false;
 			OpenGL::disableDepth();
+		}
+	}
+
+	void setCullFace(GLenum mode) {
+		if (cullFaceMode != mode) {
+			cullFaceMode = mode;
+			OpenGL::setCullFace(mode);
+		}
+	}
+
+	void enableCull() {
+		if (!cullEnabled) {
+			cullEnabled = true;
+			OpenGL::enableCullFace();
+		}
+	}
+
+	void disableCull() {
+		if (cullEnabled) {
+			cullEnabled = false;
+			OpenGL::disableCullFace();
 		}
 	}
 

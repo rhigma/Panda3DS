@@ -5,6 +5,9 @@ namespace PICA {
 	namespace InternalRegs {
 		enum : u32 {
 			// Rasterizer registers
+			// Bits 0-1 select which faces survive: 0 keeps all, 1 keeps the clockwise ones, 2 the
+			// counter-clockwise ones
+			FaceCulling = 0x40,
 			ViewportWidth = 0x41,
 			ViewportInvw = 0x42,
 			ViewportHeight = 0x43,

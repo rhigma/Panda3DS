@@ -504,6 +504,19 @@ void RendererGL::drawVertices(PICA::PrimType primType, std::span<const Vertex> v
 
 	setupStencilTest(stencilEnable);
 
+	// PICA's face culling register keeps all faces (0), the clockwise ones (1) or the counter-clockwise
+	// ones (2). Games rely on it for the inverted hull outlines cel-shaded models use, which need the
+	// faces of the unexpanded mesh culled while the drawn hull points inwards.
+	u32 cullMode = regs[PICA::InternalRegs::FaceCulling] & 3;
+	if (cullMode == 0) {
+		gl.disableCull();
+	} else {
+		// Front faces are clockwise in PICA clip space, so keeping clockwise faces means culling the back
+		// ones and keeping counter-clockwise faces means culling the front ones
+		gl.setCullFace(cullMode == 1 ? GL_BACK : GL_FRONT);
+		gl.enableCull();
+	}
+
 	if (!usingAcceleratedShader) {
 		vbo.bufferVertsSub(vertices);
 		OpenGL::draw(primitiveTopology, GLsizei(vertices.size()));
@@ -530,6 +543,8 @@ void RendererGL::drawVertices(PICA::PrimType primType, std::span<const Vertex> v
 			OpenGL::draw(primitiveTopology, GLsizei(vertices.size()));
 		}
 	}
+
+	gl.disableCull();
 }
 
 void RendererGL::display() {
